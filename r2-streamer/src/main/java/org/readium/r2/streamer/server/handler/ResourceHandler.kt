@@ -9,7 +9,6 @@
 
 package org.readium.r2.streamer.server.handler
 
-import android.util.Log
 import org.nanohttpd.protocols.http.IHTTPSession
 import org.nanohttpd.protocols.http.NanoHTTPD.MIME_PLAINTEXT
 import org.nanohttpd.protocols.http.response.IStatus
@@ -19,15 +18,12 @@ import org.nanohttpd.protocols.http.response.Response.newFixedLengthResponse
 import org.nanohttpd.protocols.http.response.Status
 import org.nanohttpd.router.RouterNanoHTTPD
 import org.readium.r2.streamer.fetcher.Fetcher
+import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 
 
 class ResourceHandler : RouterNanoHTTPD.DefaultHandler() {
-
-    companion object {
-        val TAG: String = ResourceHandler::class.java.simpleName
-    }
 
     override fun getMimeType(): String? {
         return null
@@ -44,7 +40,7 @@ class ResourceHandler : RouterNanoHTTPD.DefaultHandler() {
     override fun get(uriResource: RouterNanoHTTPD.UriResource?, urlParams: Map<String, String>?,
                      session: IHTTPSession?): Response? {
         try {
-            Log.v(TAG, "Method: ${session!!.method}, Uri: ${session.uri}")
+            Timber.v("Method: ${session!!.method}, Uri: ${session.uri}")
             val fetcher = uriResource!!.initParameter(Fetcher::class.java)
 
             val filePath = getHref(session.uri)
@@ -63,7 +59,7 @@ class ResourceHandler : RouterNanoHTTPD.DefaultHandler() {
 
             return serveResponse(session, fetcher.dataStream(filePath), mimeType)
         } catch (e: Exception) {
-            Log.e(TAG, "Exception in get", e)
+            Timber.e(e)
             return newFixedLengthResponse(Status.INTERNAL_ERROR, mimeType, ResponseStatus.FAILURE_RESPONSE)
         }
     }
